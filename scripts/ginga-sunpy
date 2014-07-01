@@ -1,0 +1,16 @@
+#!/usr/bin/env python2
+
+# ginga-sunpy A SunPy customised ginga viewer
+
+"""
+Usage:
+ginga-sunpy --help
+ginga-sunpy [options] [fitsfile] ...
+"""
+import sys
+from ginga import main
+
+if __name__ == "__main__":
+    args = sys.argv
+    args.append('--plugin=sunpy_plugin')
+    main.reference_viewer(args)
