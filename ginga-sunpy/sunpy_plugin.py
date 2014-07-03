@@ -273,18 +273,33 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
         for j, col in enumerate(row):
           item = QtGui.QTableWidgetItem(str(col))
           wtable.setItem(i, j, item)
+          # wtable.add_callback('activated', lambda w: self.table_click())
+      
+      wtable.itemClicked.connect(self.table_click)
 
       wtable.setHorizontalHeaderLabels(table_headers)
 
       print q
 
-      self.fv.ds.add_tab("channels", wtable, 1, "SunPyDB", tabname="sunpydb")
+      self.wtable = wtable
+
+      # self.fv.ds.add_tab("channels", wtable, 1, "SunPyDB", tabname="sunpydb")
+      self.fv.ds.add_tab("right", wtable, 1, "SunPyDB", tabname="sunpydb")
       self.fv.ds.raise_tab("sunpydb")
 
       # for w in (wtable,):
         # self.fv.ds.add_tab("channels", w, 1, "SunPyDB", tabname="sunpydb")
         # hbox.addWidget(w)
     
+    def table_click(self, item):
+      row = item.row()
+      entry_id = int(self.wtable.item(row, 0).data(0))
+      # print row
+      # print "Id:", self.wtable.item(row, 0).data(0)
+      # print dir(self.wtable.item(row, 0))
+      entry = database.get_entry_by_id(entry_id)
+      print entry.path
+ 
     def open_file(self):
       print 'In open file'
       res = QtGui.QFileDialog.getOpenFileName()
