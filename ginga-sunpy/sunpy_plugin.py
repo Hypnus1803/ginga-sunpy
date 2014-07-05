@@ -8,8 +8,10 @@ it will then be available from the "Operations" button.
 
 """
 
+import numpy as np
+
 # importing the Ginga modules required by a Ginga Plugin 
-from ginga import GingaPlugin
+from ginga import GingaPlugin, cmap
 from ginga.misc import Widgets
 from ginga.qtw.ImageViewQt import ImageViewZoom
 from ginga import AstroImage
@@ -22,6 +24,7 @@ import sys, os
 from sunpy.database import Database
 import sunpy.database
 import sunpy
+import sunpy.map
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -134,7 +137,11 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
         open_button = Widgets.Button(text="Open Database")
         self.open_button = open_button
         open_button.add_callback('activated', lambda w: self.open_sqlite_database())
-        
+ 
+        open_button = Widgets.Button(text="Commit changes to Database")
+        self.open_button = open_button
+        open_button.add_callback('activated', lambda w: self.commit_database())
+
         # Frame for instructions and add the text widget with another
         # blank widget to stretch as needed to fill emp
         fr = Widgets.Frame("Instructions")
@@ -212,11 +219,11 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
       try:
         connection_string = sunpy.config.get('database', 'url')
         global database 
-        database = Database(connection_string)
+        database = Database(connection_string, default_waveunit='angstrom')
       except:
         connection_string = self.get_connection_string()
         global database 
-        database = Database(connection_string)
+        database = Database(connection_string, default_waveunit='angstrom')
       
       # self.status_label.set_text("Status: Database Connected!!")
     
@@ -332,6 +339,17 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
       
       fitsimage.set_image(image)
       self.fitsimage = fitsimage
+
+      #Create a map with only the already opened metadata for speed
+      sunpy_map = sunpy.map.Map((np.zeros([1,1]), image.get_header()))
+      cm = "{0}{1}{2}".format(sunpy_map.observatory.lower(),
+                              sunpy_map.detector.lower(), sunpy_map.wavelength)
+      try:
+          cm = cmap.get_cmap(cm)
+          rgbmap = self.fitsimage.get_rgbmap()
+          rgbmap.set_cmap(cm)
+      except KeyError:
+          pass
       
       w = fitsimage.get_widget()
       # print dir(w)
@@ -372,6 +390,8 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
       global sqlite_db
       sqlite_db = Database(db_string)
 
+    def commit_database(self):
+        database.commit()
     
     # Methods which are not required till now
     def pause(self):
