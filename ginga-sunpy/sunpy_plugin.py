@@ -8,6 +8,8 @@ it will then be available from the "Operations" button.
 
 """
 
+import numpy as np
+
 # importing the Ginga modules required by a Ginga Plugin 
 from ginga import GingaPlugin, cmap
 from ginga.misc import Widgets
@@ -217,11 +219,11 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
       try:
         connection_string = sunpy.config.get('database', 'url')
         global database 
-        database = Database(connection_string)
+        database = Database(connection_string, default_waveunit='angstrom')
       except:
         connection_string = self.get_connection_string()
         global database 
-        database = Database(connection_string)
+        database = Database(connection_string, default_waveunit='angstrom')
       
       # self.status_label.set_text("Status: Database Connected!!")
     
@@ -337,8 +339,9 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
       
       fitsimage.set_image(image)
       self.fitsimage = fitsimage
-      
-      sunpy_map = sunpy.map.Map(entry.path)
+
+      #Create a map with only the already opened metadata for speed
+      sunpy_map = sunpy.map.Map((np.zeros([1,1]), image.get_header()))
       cm = "{0}{1}{2}".format(sunpy_map.observatory.lower(),
                               sunpy_map.detector.lower(), sunpy_map.wavelength)
       try:
