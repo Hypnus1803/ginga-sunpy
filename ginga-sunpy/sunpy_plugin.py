@@ -131,6 +131,10 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
         self.add_button = add_button
         add_button.add_callback('activated', lambda w: self.add_file())
 
+        open_button = Widgets.Button(text="Open Database")
+        self.open_button = open_button
+        open_button.add_callback('activated', lambda w: self.open_sqlite_database())
+        
         # Frame for instructions and add the text widget with another
         # blank widget to stretch as needed to fill emp
         fr = Widgets.Frame("Instructions")
@@ -149,6 +153,7 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
         vbox2.add_widget(populate_button)
         vbox2.add_widget(view_button)
         vbox2.add_widget(add_button)
+        vbox2.add_widget(open_button)
         vbox2.add_widget(status_label)
 	
         vbox2.add_widget(Widgets.Label(''), stretch=1)
@@ -200,12 +205,13 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
         opened and closed for modal operations.  This method may be omitted
         in many cases.
         """
-        self.tw.set_text("""This plugin doesn't do anything interesting.""")
+        self.tw.set_text("""This plugin is used for browsing and viewing SunPy database entries""")
         self.resume()
 
     def connectDB(self):
       try:
         connection_string = sunpy.config.get('database', 'url')
+        global database 
         database = Database(connection_string)
       except:
         connection_string = self.get_connection_string()
@@ -256,7 +262,7 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
 
       queries = []
 
-      table_headers = ['id', 'Obs Time Start', 'Obs Time End', 'Instrument', 'Min Wavelength', 'Max Wavelength']
+      table_headers = ['id', 'Observation Time Start', 'Observation Time End', 'Instrument', 'Min Wavelength', 'Max Wavelength']
   
       for i in database:
         q = []
@@ -280,11 +286,16 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
 
       wtable.setHorizontalHeaderLabels(table_headers)
 
+      wtable.horizontalHeader().setResizeMode(QtGui.QHeaderView.ResizeToContents)
+      # print dir(wtable)
+      
       print q
 
       self.wtable = wtable
 
       # self.fv.ds.add_tab("channels", wtable, 1, "SunPyDB", tabname="sunpydb")
+      
+      # TODO: Fix the multiple tab opening on each update issue 
       self.fv.ds.add_tab("right", wtable, 1, "SunPyDB", tabname="sunpydb")
       self.fv.ds.raise_tab("sunpydb")
 
@@ -323,10 +334,12 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
       self.fitsimage = fitsimage
       
       w = fitsimage.get_widget()
-      print dir(w)
+      # print dir(w)
       # w.resize(512, 512)
       
-      self.fv.ds.add_tab("channels", w, 1, entry.path, tabname="image")
+      # TODO: Fix multiple image tab open for same image issue
+      # TODO: Fit image to entire available space
+      self.fv.ds.add_tab("channels", w, 1, entry.path.split('/')[-1], tabname="image")
       self.fv.ds.raise_tab("image")
  
     def open_file(self):
@@ -351,6 +364,7 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
       
       print 'file added'
 
+    # TODO: Implement global functioning of this function
     def open_sqlite_database(self):
       print 'In open_sqlite_database()'
       file_name = self.open_file()
