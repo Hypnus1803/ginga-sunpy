@@ -9,7 +9,7 @@ it will then be available from the "Operations" button.
 """
 
 # importing the Ginga modules required by a Ginga Plugin 
-from ginga import GingaPlugin
+from ginga import GingaPlugin, cmap
 from ginga.misc import Widgets
 from ginga.qtw.ImageViewQt import ImageViewZoom
 from ginga import AstroImage
@@ -22,6 +22,7 @@ import sys, os
 from sunpy.database import Database
 import sunpy.database
 import sunpy
+import sunpy.map
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -134,7 +135,11 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
         open_button = Widgets.Button(text="Open Database")
         self.open_button = open_button
         open_button.add_callback('activated', lambda w: self.open_sqlite_database())
-        
+ 
+        open_button = Widgets.Button(text="Commit changes to Database")
+        self.open_button = open_button
+        open_button.add_callback('activated', lambda w: self.commit_database())
+
         # Frame for instructions and add the text widget with another
         # blank widget to stretch as needed to fill emp
         fr = Widgets.Frame("Instructions")
@@ -333,6 +338,16 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
       fitsimage.set_image(image)
       self.fitsimage = fitsimage
       
+      sunpy_map = sunpy.map.Map(entry.path)
+      cm = "{0}{1}{2}".format(sunpy_map.observatory.lower(),
+                              sunpy_map.detector.lower(), sunpy_map.wavelength)
+      try:
+          cm = cmap.get_cmap(cm)
+          rgbmap = self.fitsimage.get_rgbmap()
+          rgbmap.set_cmap(cm)
+      except KeyError:
+          pass
+      
       w = fitsimage.get_widget()
       # print dir(w)
       # w.resize(512, 512)
@@ -372,6 +387,8 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
       global sqlite_db
       sqlite_db = Database(db_string)
 
+    def commit_database(self):
+        database.commit()
     
     # Methods which are not required till now
     def pause(self):
