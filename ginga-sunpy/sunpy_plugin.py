@@ -318,27 +318,14 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
       # print dir(self.wtable.item(row, 0))
       entry = database.get_entry_by_id(entry_id)
       print entry.path
-      
-      fitsimage = ImageViewZoom(self.logger, render='widget')
-      fitsimage.enable_autocuts('on')
-      fitsimage.set_autocut_params('zscale')
-      fitsimage.enable_autozoom('on')
-      # fitsimage.set_callback('drag-drop', self.drop_file)
-      fitsimage.set_bg(0.2, 0.2, 0.2)
-      fitsimage.ui_setActive(True)
-          
-      bd = fitsimage.get_bindings()
-      bd.enable_pan(True)
-      bd.enable_zoom(True)
-      bd.enable_cuts(True)
-      bd.enable_flip(True)
-
 
       image = AstroImage.AstroImage()
       image.load_file(entry.path)
       
-      fitsimage.set_image(image)
-      self.fitsimage = fitsimage
+      # TODO: Fit image to entire available space?
+      chaname = entry.path.split('/')[-1]
+      self.fv.add_image(chaname, image, chname=chaname)
+      self.fitsimage = self.fv.get_fitsimage(chaname)
 
       #Create a map with only the already opened metadata for speed
       sunpy_map = sunpy.map.Map((np.zeros([1,1]), image.get_header()))
@@ -351,15 +338,6 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
       except KeyError:
           pass
       
-      w = fitsimage.get_widget()
-      # print dir(w)
-      # w.resize(512, 512)
-      
-      # TODO: Fix multiple image tab open for same image issue
-      # TODO: Fit image to entire available space
-      self.fv.ds.add_tab("channels", w, 1, entry.path.split('/')[-1], tabname="image")
-      self.fv.ds.raise_tab("image")
- 
     def open_file(self):
       print 'In open file'
       res = QtGui.QFileDialog.getOpenFileName()
