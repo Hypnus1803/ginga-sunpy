@@ -10,6 +10,13 @@ ginga-sunpy [options] [fitsfile] ...
 import sys
 from ginga import main
 
+# Add SunPy color maps to ginga
+from ginga.cmap import cmaps, add_matplotlib_cmap
+from sunpy.cm.cm import cmlist
+
+for k, v in cmlist.items():
+    add_matplotlib_cmap(v, name=k)
+
 if __name__ == "__main__":
     args = sys.argv
     args.append('--plugin=sunpy_plugin')
