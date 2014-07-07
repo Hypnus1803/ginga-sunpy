@@ -125,6 +125,9 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
 
         status_label = Widgets.Label(text="Status:")
         self.status_label = status_label
+
+        set_default_box = Widgets.CheckBox("Set Database as default")
+        self.set_default_box = set_default_box
         
         view_button = Widgets.Button(text="View Database")
         self.view_button = view_button
@@ -156,6 +159,7 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
         vbox2.add_widget(db_user)
         vbox2.add_widget(db_pass_label)
         vbox2.add_widget(db_pass)
+        vbox2.add_widget(set_default_box)
         vbox2.add_widget(connect_button)
         vbox2.add_widget(populate_button)
         vbox2.add_widget(view_button)
@@ -217,6 +221,7 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
         self.resume()
 
     def connectDB(self):
+      connection_string = ''
       try:
         connection_string = sunpy.config.get('database', 'url')
         global database 
@@ -225,7 +230,12 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
         connection_string = self.get_connection_string()
         global database 
         database = Database(connection_string, default_waveunit='angstrom')
-      
+
+      print connection_string
+
+      if self.set_default_box.get_state():
+        # print "Inside Set Default IF"
+        self.set_default_db(connection_string)
       # self.status_label.set_text("Status: Database Connected!!")
     
     def get_connection_string(self):
@@ -252,6 +262,19 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
       self.status_label.set_text(connect_string)
 
       return connect_string
+
+    def set_default_db(self, conn_string):
+      # print "Inside Set Default DB"
+      url = conn_string
+
+      if 'database' not in sunpy.config.sections():
+        # print "Inside Set Default DB IF"
+        print sunpy.config.sections()
+        sunpy.config.add_section('database')
+
+      # print "Outside Set Default DB IF"
+      sunpy.config.set("database", "url", url)
+      print "Set Default DB", sunpy.config.get("database", "url")
 
     def add_file_to_db(self):
       database.add_from_file('/home/rajul/Documents/FITSFiles/WFPC2u5780205r_c0fx.fits')
