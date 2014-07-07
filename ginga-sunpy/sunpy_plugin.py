@@ -125,6 +125,14 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
 
         status_label = Widgets.Label(text="Status:")
         self.status_label = status_label
+        
+        default_wavelength_label = Widgets.Label(text="Default Wavelength")
+        self.default_wavelength_label = default_wavelength_label
+        
+        default_wavelength = Widgets.ComboBox()
+        default_wavelength.insert_alpha('angstrom')
+        default_wavelength.append_text('nm')
+        self.default_wavelength = default_wavelength
 
         set_default_box = Widgets.CheckBox("Set Database as default")
         self.set_default_box = set_default_box
@@ -159,6 +167,8 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
         vbox2.add_widget(db_user)
         vbox2.add_widget(db_pass_label)
         vbox2.add_widget(db_pass)
+        vbox2.add_widget(default_wavelength_label)
+        vbox2.add_widget(default_wavelength)
         vbox2.add_widget(set_default_box)
         vbox2.add_widget(connect_button)
         vbox2.add_widget(populate_button)
@@ -221,15 +231,21 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
         self.resume()
 
     def connectDB(self):
+      # print dir(self.default_wavelength)
+      # print self.default_wavelength.show_text('angstrom')
+      
+      def_wavelength = self.default_wavelength.get_widget().currentText()
+      # print def_wavelnth
+
       connection_string = ''
       try:
         connection_string = sunpy.config.get('database', 'url')
         global database 
-        database = Database(connection_string, default_waveunit='angstrom')
+        database = Database(connection_string, default_waveunit=def_wavelength)
       except:
         connection_string = self.get_connection_string()
         global database 
-        database = Database(connection_string, default_waveunit='angstrom')
+        database = Database(connection_string, default_waveunit=def_wavelength)
 
       print connection_string
 
