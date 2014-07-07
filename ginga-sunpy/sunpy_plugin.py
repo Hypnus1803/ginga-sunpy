@@ -138,9 +138,9 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
         self.open_button = open_button
         open_button.add_callback('activated', lambda w: self.open_sqlite_database())
  
-        open_button = Widgets.Button(text="Commit changes to Database")
-        self.open_button = open_button
-        open_button.add_callback('activated', lambda w: self.commit_database())
+        commit_button = Widgets.Button(text="Commit changes to Database")
+        self.commit_button = commit_button
+        commit_button.add_callback('activated', lambda w: self.commit_database())
 
         # Frame for instructions and add the text widget with another
         # blank widget to stretch as needed to fill emp
@@ -161,6 +161,7 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
         vbox2.add_widget(view_button)
         vbox2.add_widget(add_button)
         vbox2.add_widget(open_button)
+        vbox2.add_widget(commit_button)
         vbox2.add_widget(status_label)
 	
         vbox2.add_widget(Widgets.Label(''), stretch=1)
@@ -258,28 +259,23 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
       database.add_from_file('/home/rajul/Documents/FITSFiles/NICMOSn4hk12010_mos.fits')	        
       self.status_label.set_text(_fromUtf8("Status: Database Populated!!"))
 
-    def database_view(self):
-      self.view = Database_View()
-      self.view.show()
-      self.view.raise_()
-      self.view.activateWindow()
-
     def view_database(self):
-      wtable = QtGui.QTableWidget(len(database), 6)
+      table_headers = ['id', 'File', 'Observation Time Start', 'Observation Time End', 'Instrument', 'Min Wavelength', 'Max Wavelength']
 
-      queries = []
-
-      table_headers = ['id', 'Observation Time Start', 'Observation Time End', 'Instrument', 'Min Wavelength', 'Max Wavelength']
+      wtable = QtGui.QTableWidget(len(database), len(table_headers))
   
-      for i in database:
+      queries = []
+      
+      for entry in database:
         q = []
 
-        q.append(i.id)
-        q.append(i.observation_time_start)
-        q.append(i.observation_time_end)
-        q.append(i.instrument)
-        q.append(i.wavemin)
-        q.append(i.wavemax)
+        q.append(entry.id)
+        q.append(entry.path.split('/')[-1])
+        q.append(entry.observation_time_start)
+        q.append(entry.observation_time_end)
+        q.append(entry.instrument)
+        q.append(entry.wavemin)
+        q.append(entry.wavemax)
 
         queries.append(q)
 
