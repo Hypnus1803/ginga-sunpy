@@ -292,6 +292,7 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
       sunpy.config.set("database", "url", url)
       print "Set Default DB", sunpy.config.get("database", "url")
 
+    # TODO: Implement add from entire file system logic
     def add_file_to_db(self):
       database.add_from_file('/home/rajul/Documents/FITSFiles/WFPC2u5780205r_c0fx.fits')
       database.add_from_file('/home/rajul/Documents/FITSFiles/WFPC2ASSNu5780205bx.fits')
@@ -337,7 +338,16 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
 
       # self.fv.ds.add_tab("channels", wtable, 1, "SunPyDB", tabname="sunpydb")
       
-      # TODO: Fix the multiple tab opening on each update issue 
+      # TODO: Improve this hack for the multiple tab opening on each update issue 
+      
+      # print dir(self.fv.ds)
+      # print self.fv.ds.get_tabnames()
+      
+      if 'sunpydb' in self.fv.ds.get_tabnames():
+        self.fv.ds.remove_tab("sunpydb")
+
+      print self.fv.ds.get_tabnames()
+      
       self.fv.ds.add_tab("right", wtable, 1, "SunPyDB", tabname="sunpydb")
       self.fv.ds.raise_tab("sunpydb")
 
