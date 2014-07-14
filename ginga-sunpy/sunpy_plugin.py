@@ -91,16 +91,20 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
         self.tw = tw
 
 
-        db_driver = Widgets.TextArea(wrap=True, editable=True)
+        # db_driver = Widgets.TextArea(wrap=True, editable=True)
+        db_driver = Widgets.TextEntry()
         self.db_driver = db_driver
 
-        db_name = Widgets.TextArea(wrap=True, editable=True)
+        # db_name = Widgets.TextArea(wrap=True, editable=True)
+        db_name = Widgets.TextEntry()
         self.db_name = db_name
                                                   
-        db_user = Widgets.TextArea(wrap=True, editable=True)
+        # db_user = Widgets.TextArea(wrap=True, editable=True)
+        db_user = Widgets.TextEntry()
         self.db_user = db_user
         
-        db_pass = Widgets.TextArea(wrap=True, editable=True)
+        # db_pass = Widgets.TextArea(wrap=True, editable=True)
+        db_pass = Widgets.TextEntry()
         self.db_pass = db_pass
                                                                           
         db_driver_label = Widgets.Label(text="Driver Name")
@@ -257,11 +261,16 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
     def get_connection_string(self):
       connect_string = ''
       
-      db_driver = self.db_driver.get_widget().toPlainText()
-      db_name = self.db_name.get_widget().toPlainText()
-      db_user = self.db_user.get_widget().toPlainText()
-      db_pass = self.db_pass.get_widget().toPlainText()
+      # db_driver = self.db_driver.get_widget().toPlainText()
+      # db_name = self.db_name.get_widget().toPlainText()
+      # db_user = self.db_user.get_widget().toPlainText()
+      # db_pass = self.db_pass.get_widget().toPlainText()
 
+      db_driver = self.db_driver.get_text()
+      db_name = self.db_name.get_text()
+      db_user = self.db_user.get_text()
+      db_pass = self.db_pass.get_text()
+      
       if db_driver == '':
         db_driver = 'sqlite'
 
@@ -301,6 +310,11 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
 
     def view_database(self):
       table_headers = ['id', 'File', 'Observation Time Start', 'Observation Time End', 'Instrument', 'Min Wavelength', 'Max Wavelength']
+      query_by = Widgets.ComboBox()
+      
+      for header in table_headers:
+        query_by.append_text(header)
+      
 
       wtable = QtGui.QTableWidget(len(database), len(table_headers))
   
@@ -382,6 +396,14 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
           rgbmap.set_cmap(cm)
       except KeyError:
           pass
+
+    def search():
+      print display_entries(
+          database.query(vso.attrs.Wave(10, 20, 'nm')),
+          ['id', 'observation_time_start', 'observation_time_end', 'instrument', 'wavemin', 'wavemax'])
+      print display_entries(
+          database.query(vso.attrs.Wave(10, 20, 'angstrom')),
+          ['id', 'observation_time_start', 'observation_time_end', 'instrument', 'wavemin', 'wavemax'])
       
     def open_file(self):
       print 'In open file'
