@@ -25,6 +25,8 @@ from sunpy.database import Database
 import sunpy.database
 import sunpy
 import sunpy.map
+from sunpy.database.tables import display_entries
+from sunpy.net import vso
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -134,6 +136,7 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
         self.default_wavelength_label = default_wavelength_label
         
         default_wavelength = Widgets.ComboBox()
+        # default_wavelength = Widgets.TextEntry()
         default_wavelength.insert_alpha('angstrom')
         default_wavelength.append_text('nm')
         self.default_wavelength = default_wavelength
@@ -310,14 +313,29 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
 
     def view_database(self):
       table_headers = ['id', 'File', 'Observation Time Start', 'Observation Time End', 'Instrument', 'Min Wavelength', 'Max Wavelength']
-      query_by = Widgets.ComboBox()
+      self.table_headers = table_headers
+      #query_by = Widgets.ComboBox()
       
-      for header in table_headers:
-        query_by.append_text(header)
-      
+      #for header in table_headers:
+      #  query_by.append_text(header)
 
-      wtable = QtGui.QTableWidget(len(database), len(table_headers))
-  
+      search_boxes = {}
+      self.search_boxes = search_boxes
+      for i in table_headers:
+        search = Widgets.TextEntry()
+        search_boxes[i] = search.get_widget()
+        search_boxes[i].textChanged.connect(self.query)
+
+      wtable = QtGui.QTableWidget(len(database)+1, len(table_headers))
+
+      for i, col in enumerate(table_headers):
+        print i, col
+        #item = QtGui.QTableWidgetItem()
+        #print item
+        #wtable.setItem(0, col, item)
+        print i, search_boxes[col]
+        wtable.setCellWidget(0, i, search_boxes[col])
+
       queries = []
       
       for entry in database:
@@ -333,10 +351,11 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
 
         queries.append(q)
 
+
       for i, row in enumerate(queries):
         for j, col in enumerate(row):
           item = QtGui.QTableWidgetItem(str(col))
-          wtable.setItem(i, j, item)
+          wtable.setItem(i+1, j, item)
           # wtable.add_callback('activated', lambda w: self.table_click())
       
       wtable.itemClicked.connect(self.table_click)
@@ -368,6 +387,47 @@ class sunpy_plugin(GingaPlugin.LocalPlugin):
       # for w in (wtable,):
         # self.fv.ds.add_tab("channels", w, 1, "SunPyDB", tabname="sunpydb")
         # hbox.addWidget(w)
+
+    def query(self):
+      print "hello"
+      # print self.search_boxes
+
+      query_mapping = {
+          'id' : 'id',
+          'observation_time_start' : 'Observation Time Start',
+          'observation_time_end' : 'Observation Time End',
+          'instrument' : 'Instrument', 
+          'wavemin' : 'Min Wavelength', 
+          'wavemax' : 'Max Wavelength' 
+        }
+
+      query_headers = ['id', 'observation_time_start', 'observation_time_end', 'instrument', 'wavemin', 'wavemax']
+      query_tuple = [self.search_boxes[query_mapping[x]].text() for x in query_headers]
+      print query_tuple
+
+      #print dir(self.wtable)
+      #print self.wtable.rowCount()
+      #print self.wtable.columnCount()
+
+      query_results = []
+      for k,v in self.search_boxes.items():
+        print k, v.text()
+        #print display_entries (
+        #    database.query(vso.attrs.Wave(10, 20, 'angstrom')),
+        #    ['id', 'observation_time_start', 'observation_time_end', 'instrument', 'wavemin', 'wavemax']
+        #  )
+        if v.text() != '':
+          col = self.table_headers.index(k)
+          print col
+          print self.wtable.rowCount()
+          for i in range(1, self.wtable.rowCount()):
+            t = self.wtable.item(i, col)
+            print i, col, t
+            print t.text()
+            if t.text().find(v.text()) != -1:
+              query_results.append(i)
+
+        print query_results
     
     def table_click(self, item):
       row = item.row()
