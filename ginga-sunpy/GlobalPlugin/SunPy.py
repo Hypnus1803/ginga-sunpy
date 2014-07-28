@@ -121,7 +121,7 @@ class SunPy(GingaPlugin.GlobalPlugin):
 
         
 
-        db_default_values_frame = Widgets.Frame("Default Values")
+        db_default_values_frame = Widgets.Frame("Options")
         db_default_values_vbox = Widgets.VBox()
         
        
@@ -144,8 +144,11 @@ class SunPy(GingaPlugin.GlobalPlugin):
 
         set_default_box = Widgets.CheckBox("Set Current Database as default")
         self.set_default_box = set_default_box
-
         db_default_values_vbox.add_widget(set_default_box)
+
+        starred_entries_box = Widgets.CheckBox("Show starred entries only")
+        self.starred_entries_box = starred_entries_box
+        db_default_values_vbox.add_widget(starred_entries_box)
 
         db_default_values_vbox.add_widget(Widgets.Label(''), stretch=1)
         db_default_values_frame.set_widget(db_default_values_vbox)
@@ -257,8 +260,8 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	conn_string = db_driver + '://' + user_string+ '/' + db_name     	
     	return conn_string
 
-    def view_database(self):
-    	table_headers = ['id', 'File', 'Observation Time Start', 'Observation Time End', 'Instrument', 'Min Wavelength', 'Max Wavelength']
+    def view_database(self, selected_entries=None):
+    	table_headers = ['id', 'File', 'Observation Time Start', 'Observation Time End', 'Instrument', 'Min Wavelength', 'Max Wavelength', 'Starred']
     	
     	self.table_headers = table_headers
     	
@@ -269,15 +272,22 @@ class SunPy(GingaPlugin.GlobalPlugin):
     		search = Widgets.TextEntry()
     		search_boxes[i] = search.get_widget()
     		search_boxes[i].textChanged.connect(self.query)
-	    		
-    	wtable = QtGui.QTableWidget(len(database) + 1, len(table_headers))
+
+    	if self.starred_entries_box.get_state():
+    		q = self.get_starred_entries_id()
+    		selected_entries = self.get_entries_from_id(q)
+
+    	if selected_entries == None:
+    		selected_entries = database
+
+    	wtable = QtGui.QTableWidget(len(selected_entries) + 1, len(table_headers))
 
     	for i, col in enumerate(table_headers):
     	 	wtable.setCellWidget(0, i, search_boxes[col])
 
     	queries = []
 
-    	for entry in database:
+    	for entry in selected_entries:
     		q = []
 
     		q.append(entry.id)
@@ -287,6 +297,7 @@ class SunPy(GingaPlugin.GlobalPlugin):
     		q.append(entry.instrument)
     		q.append(entry.wavemin)
     		q.append(entry.wavemax)
+    		q.append(entry.starred)
 
     		queries.append(q)
 
@@ -321,22 +332,36 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	query_tuple = [self.search_boxes[query_mapping[x]].text() for x in query_headers]
     	
     	query_results = []
+    	queried_col = {}
 
     	for k,v in self.search_boxes.items():
-
     		if v.text() != '':
+    			queried_col[k] = v.text()
     			col = self.table_headers.index(k)
     			for i in range(1, self.wtable.rowCount()):
     				t = self.wtable.item(i, col)
-    				if t.text().find(v.text()) != -1:
+    				if t.text().lower().find(v.text()) != -1:
     					query_results.append(i)
-    		print query_results
+
+    	print query_results
+    	self.database_table_repaint(query_results)
 
     def on_table_row_click(self, item):
     	row = item.row()
+    	col = item.column()
+
     	entry_id = int(self.wtable.item(row, 0).data(0))
 
     	entry = database.get_entry_by_id(entry_id)
+
+    	if col == self.table_headers.index('Starred'):
+    		if entry.starred:
+    			database.unstar(entry)
+    		else:
+    			database.star(entry)
+
+    		database.commit()
+    		self.view_database()
 
     	image = AstroImage.AstroImage()
     	image.load_file(entry.path)
@@ -356,6 +381,25 @@ class SunPy(GingaPlugin.GlobalPlugin):
     		rgbmap.set_cmap(cm)
     	except KeyError:
     		pass
+
+    def get_starred_entries_id (self):
+    	q = []
+    	for entry in database:
+    		if entry.starred:
+    			q.append(entry.id)
+    	return q
+
+    def get_entries_from_id (self, entries_id):
+    	q = []
+    	for i in entries_id:
+    		q.append(database.get_entry_by_id(i))
+
+    	return q
+
+
+
+    def database_table_repaint(self, entries):
+    	pass
 
     def set_default_db(self, conn_string):
 		url = conn_string
