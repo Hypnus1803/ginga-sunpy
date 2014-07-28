@@ -527,3 +527,39 @@ class SunPy(GingaPlugin.GlobalPlugin):
         name of the plugin.
         """
         return 'sunpydatabase'
+
+class DataModel(QtCore.QAbstracttableModel):
+	def __init__(self, database, parent=None, *args):
+		QAbstractTableModel.__init__(self, parent, *args) 
+		self.data = self.get_data()
+		self.headers = self.header_data()
+
+	def row_count(self, parent): 
+        return len(self.data) 
+ 
+    def column_count(self, parent): 
+        return len(self.data[0])
+
+    def header_data (self):
+    	headers = ['id', 'File', 'Observation Time Start', 'Observation Time End', 'Instrument', 'Min Wavelength', 'Max Wavelength', 'Starred']
+    	return headers
+
+    def get_data(self):
+    	queries = []
+
+    	for entry in self.database:
+    		q = []
+
+    		q.append(entry.id)
+    		q.append(entry.path.split('/')[-1])
+    		q.append(entry.observation_time_start)
+    		q.append(entry.observation_time_end)
+    		q.append(entry.instrument)
+    		q.append(entry.wavemin)
+    		q.append(entry.wavemax)
+    		q.append(entry.starred)
+
+    		queries.append(q)
+
+    	return queries
+
