@@ -82,76 +82,12 @@ class SunPy(GingaPlugin.GlobalPlugin):
         tw.set_font(self.msgFont)
         self.tw = tw
 
-        # Frame for datebase parameters 
-        db_parameters_frame = Widgets.Frame("Database Parameters")
-        db_parameters_vbox = Widgets.VBox()
-        
-        db_driver = Widgets.TextEntry("sqlite")
-        db_name = Widgets.TextEntry("sunpydb")
-        db_user = Widgets.TextEntry()
-        db_passwd = Widgets.TextEntry()
-        
-        self.db_driver = db_driver
-        self.db_name = db_name                
-        self.db_user = db_user
-        self.db_passwd = db_passwd
-                                                                          
-        db_driver_label = Widgets.Label(text="Driver Name")
-        db_name_label = Widgets.Label(text="Database Name")
-        db_user_label = Widgets.Label(text="User Name")
-        db_passwd_label = Widgets.Label(text="Password")
-        
-        self.db_driver_label = db_driver_label
-        self.db_name_label = db_name_label
-        self.db_user_label = db_user_label
-        self.db_passwd_label = db_passwd_label
-        
-        db_parameters_vbox.add_widget(db_driver_label)
-        db_parameters_vbox.add_widget(db_driver)
-        db_parameters_vbox.add_widget(db_name_label)
-        db_parameters_vbox.add_widget(db_name)
-        db_parameters_vbox.add_widget(db_user_label)
-        db_parameters_vbox.add_widget(db_user)
-        db_parameters_vbox.add_widget(db_passwd_label)
-        db_parameters_vbox.add_widget(db_passwd)
-
-        db_parameters_vbox.add_widget(Widgets.Label(''), stretch=1)
-        db_parameters_frame.set_widget(db_parameters_vbox)
+        # Database Parameters
+        db_parameters_frame = self.add_db_parameters_to_gui()
         vbox.add_widget(db_parameters_frame, stretch=0)
 
-        
-
-        db_default_values_frame = Widgets.Frame("Options")
-        db_default_values_vbox = Widgets.VBox()
-        
-       
-        # Wrapping Default Wavelength Label and ComboBox in a HBox
-        default_wavelength_hbox = Widgets.HBox()
-        default_wavelength_hbox.set_spacing(3)
-
-        default_wavelength_label = Widgets.Label(text="Default Wavelength")
-        self.default_wavelength_label = default_wavelength_label
-        
-        default_wavelength = Widgets.ComboBox()
-        default_wavelength.insert_alpha('angstrom')
-        default_wavelength.append_text('nm')
-        self.default_wavelength = default_wavelength
-
-        default_wavelength_hbox.add_widget(default_wavelength_label, stretch=0)
-        default_wavelength_hbox.add_widget(default_wavelength, stretch=0)
-        default_wavelength_hbox.add_widget(Widgets.Label(''), stretch=1)
-        db_default_values_vbox.add_widget(default_wavelength_hbox, stretch=0)
-
-        set_default_box = Widgets.CheckBox("Set Current Database as default")
-        self.set_default_box = set_default_box
-        db_default_values_vbox.add_widget(set_default_box)
-
-        starred_entries_box = Widgets.CheckBox("Show starred entries only")
-        self.starred_entries_box = starred_entries_box
-        db_default_values_vbox.add_widget(starred_entries_box)
-
-        db_default_values_vbox.add_widget(Widgets.Label(''), stretch=1)
-        db_default_values_frame.set_widget(db_default_values_vbox)
+        # Database Default Values
+        db_default_values_frame = self.add_db_default_values_to_gui()
         vbox.add_widget(db_default_values_frame, stretch=0)
 
         #Adding Buttons
@@ -219,6 +155,79 @@ class SunPy(GingaPlugin.GlobalPlugin):
         #cw = container.get_widget()
         #cw.addWidget(widget, stretch=1)
 
+    def add_db_parameters_to_gui(self):
+    	# Frame for datebase parameters 
+        db_parameters_frame = Widgets.Frame("Database Parameters")
+        db_parameters_vbox = Widgets.VBox()
+        
+        db_driver = Widgets.TextEntry("sqlite")
+        db_name = Widgets.TextEntry("sunpydb")
+        db_user = Widgets.TextEntry()
+        db_passwd = Widgets.TextEntry()
+        
+        self.db_driver = db_driver
+        self.db_name = db_name                
+        self.db_user = db_user
+        self.db_passwd = db_passwd
+                                                                          
+        db_driver_label = Widgets.Label(text="Driver Name")
+        db_name_label = Widgets.Label(text="Database Name")
+        db_user_label = Widgets.Label(text="User Name")
+        db_passwd_label = Widgets.Label(text="Password")
+        
+        self.db_driver_label = db_driver_label
+        self.db_name_label = db_name_label
+        self.db_user_label = db_user_label
+        self.db_passwd_label = db_passwd_label
+        
+        db_parameters_vbox.add_widget(db_driver_label)
+        db_parameters_vbox.add_widget(db_driver)
+        db_parameters_vbox.add_widget(db_name_label)
+        db_parameters_vbox.add_widget(db_name)
+        db_parameters_vbox.add_widget(db_user_label)
+        db_parameters_vbox.add_widget(db_user)
+        db_parameters_vbox.add_widget(db_passwd_label)
+        db_parameters_vbox.add_widget(db_passwd)
+
+        db_parameters_vbox.add_widget(Widgets.Label(''), stretch=1)
+        db_parameters_frame.set_widget(db_parameters_vbox)
+        
+        return db_parameters_frame
+
+    def add_db_default_values_to_gui(self):
+    	db_default_values_frame = Widgets.Frame("Options")
+        db_default_values_vbox = Widgets.VBox()
+
+        # Wrapping Default Wavelength Label and ComboBox in a HBox
+        default_wavelength_hbox = Widgets.HBox()
+        default_wavelength_hbox.set_spacing(3)
+
+        default_wavelength_label = Widgets.Label(text="Default Wavelength")
+        self.default_wavelength_label = default_wavelength_label
+        
+        default_wavelength = Widgets.ComboBox()
+        default_wavelength.insert_alpha('angstrom')
+        default_wavelength.append_text('nm')
+        self.default_wavelength = default_wavelength
+
+        default_wavelength_hbox.add_widget(default_wavelength_label, stretch=0)
+        default_wavelength_hbox.add_widget(default_wavelength, stretch=0)
+        default_wavelength_hbox.add_widget(Widgets.Label(''), stretch=1)
+        db_default_values_vbox.add_widget(default_wavelength_hbox, stretch=0)
+
+        set_default_box = Widgets.CheckBox("Set Current Database as default")
+        self.set_default_box = set_default_box
+        db_default_values_vbox.add_widget(set_default_box)
+
+        starred_entries_box = Widgets.CheckBox("Show starred entries only")
+        self.starred_entries_box = starred_entries_box
+        db_default_values_vbox.add_widget(starred_entries_box)
+
+        db_default_values_vbox.add_widget(Widgets.Label(''), stretch=1)
+        db_default_values_frame.set_widget(db_default_values_vbox)
+
+        return db_default_values_frame
+
     def connect_db(self, conn_string=''): 
     	def_wavelength = self.default_wavelength.get_widget().currentText()
 
@@ -260,34 +269,10 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	conn_string = db_driver + '://' + user_string+ '/' + db_name     	
     	return conn_string
 
-    def view_database(self, selected_entries=None):
-    	table_headers = ['id', 'File', 'Observation Time Start', 'Observation Time End', 'Instrument', 'Min Wavelength', 'Max Wavelength', 'Starred']
-    	
-    	self.table_headers = table_headers
-    	
-    	search_boxes = {}
-    	self.search_boxes = search_boxes
-
-    	for i in table_headers:
-    		search = Widgets.TextEntry()
-    		search_boxes[i] = search.get_widget()
-    		search_boxes[i].textChanged.connect(self.query)
-
-    	if self.starred_entries_box.get_state():
-    		q = self.get_starred_entries_id()
-    		selected_entries = self.get_entries_from_id(q)
-
-    	if selected_entries == None:
-    		selected_entries = database
-
-    	wtable = QtGui.QTableWidget(len(selected_entries) + 1, len(table_headers))
-
-    	for i, col in enumerate(table_headers):
-    	 	wtable.setCellWidget(0, i, search_boxes[col])
-
+    def get_data_from_db(self):
     	queries = []
 
-    	for entry in selected_entries:
+    	for entry in datebase:
     		q = []
 
     		q.append(entry.id)
@@ -300,6 +285,54 @@ class SunPy(GingaPlugin.GlobalPlugin):
     		q.append(entry.starred)
 
     		queries.append(q)
+
+    	return queries
+
+    def get_data_from_selected_entries(self, entries):
+    	queries = []
+
+    	for entry in entries:
+    		q = []
+
+    		q.append(entry.id)
+    		q.append(entry.path.split('/')[-1])
+    		q.append(entry.observation_time_start)
+    		q.append(entry.observation_time_end)
+    		q.append(entry.instrument)
+    		q.append(entry.wavemin)
+    		q.append(entry.wavemax)
+    		q.append(entry.starred)
+
+    		queries.append(q)
+
+    	return queries
+
+    def view_database(self, selected_entries=None):
+    	table_headers = ['id', 'File', 'Observation Time Start', 'Observation Time End', 'Instrument', 'Min Wavelength', 'Max Wavelength', 'Starred']
+    	self.table_headers = table_headers
+
+    	search_boxes = {}
+    	
+    	for i in table_headers:
+    		search = Widgets.TextEntry()
+    		search_boxes[i] = search.get_widget()
+    		search_boxes[i].textChanged.connect(self.query)
+
+    	self.search_boxes = search_boxes
+
+    	if self.starred_entries_box.get_state():
+    		q = self.get_starred_entries_id()
+    		selected_entries = self.get_entries_from_id(q)
+
+    	if selected_entries == None:
+    		selected_entries = database
+
+    	queries = self.get_data_from_selected_entries(selected_entries)
+
+    	wtable = QtGui.QTableWidget(len(queries) + 1, len(table_headers))
+
+    	for i, col in enumerate(table_headers):
+    	 	wtable.setCellWidget(0, i, search_boxes[col])
 
     	for i, row in enumerate(queries):
     		for j, col in enumerate(row):
@@ -343,10 +376,38 @@ class SunPy(GingaPlugin.GlobalPlugin):
     				if t.text().lower().find(v.text()) != -1:
     					query_results.append(i)
 
+    	
     	q = self.get_entries_from_id(query_results)
+    	self.database_table_repaint(q)
+
     	print query_results
-    	self.view_database(q)
+    	# self.view_database(q)
     	# self.database_table_repaint(query_results)
+
+    def database_table_repaint(self, entries):
+    	self.wtable.clearContents()
+
+    	search_boxes = {}
+    	self.search_boxes = search_boxes
+
+    	for i in self.table_headers:
+    		search = Widgets.TextEntry()
+    		search_boxes[i] = search.get_widget()
+    		search_boxes[i].textChanged.connect(self.query)
+
+    	queries = self.get_data_from_selected_entries(entries)
+
+    	for i, col in enumerate(self.table_headers):
+    		self.wtable.setCellWidget(0, i, self.search_boxes[col])
+
+    	for i, row in enumerate(queries):
+    		for j, col in enumerate(row):
+    			item = QtGui.QTableWidgetItem(str(col))
+    			self.wtable.setItem(i+1, j, item)
+
+    	self.wtable.itemClicked.connect(self.on_table_row_click)
+    	# self.wtable.setHorizontalHeaderLabels(self.table_headers)
+    	# self.wtable.horizontalHeader().setResizeMode(QtGui.QHeaderView.ResizeToContents)
 
     def on_table_row_click(self, item):
     	row = item.row()
@@ -398,8 +459,6 @@ class SunPy(GingaPlugin.GlobalPlugin):
 
     	return q
 
-    def database_table_repaint(self, entries):
-    	pass
 
     def set_default_db(self, conn_string):
 		url = conn_string
