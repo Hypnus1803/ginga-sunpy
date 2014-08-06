@@ -307,7 +307,52 @@ class SunPy(GingaPlugin.GlobalPlugin):
 
     	return queries
 
+    def trial(self):
+    	fr = Widgets.Frame()
+
+    	vbox = Widgets.VBox()
+    	print "Hello1"
+
+        #Adding Buttons
+        connect_db_button = Widgets.Button(text="Connect")
+        connect_db_button.add_callback('activated', lambda w: self.connect_db())
+
+        view_db_button = Widgets.Button(text="View Database")
+        view_db_button.add_callback('activated', lambda w: self.view_database())
+        
+        add_file_to_db_button = Widgets.Button(text="Add file to Database")
+        add_file_to_db_button.add_callback('activated', lambda w: self.add_file())
+
+        open_db_button = Widgets.Button(text="Open Database")
+        open_db_button.add_callback('activated', lambda w: self.open_sqlite_database())
+ 
+        commit_db_button = Widgets.Button(text="Commit changes to Database")
+        commit_db_button.add_callback('activated', lambda w: self.commit_database())
+
+        vbox.add_widget(connect_db_button)
+        vbox.add_widget(view_db_button)
+        vbox.add_widget(add_file_to_db_button)
+        vbox.add_widget(open_db_button)
+        vbox.add_widget(commit_db_button)
+        vbox.add_widget(Widgets.Label(''), stretch=1)
+
+        print "Hello"
+        fr.set_widget(vbox)
+        print "Hello Dolly"
+
+        print dir(fr)
+        print
+        print dir(vbox)
+
+        self.fv.ds.add_tab("right", fr.get_widget(), 1, "trial", tabname="trial")
+    	print "Hello2"
+
+    	self.fv.ds.raise_tab("trial")
+    	print "Hello3"
+
     def view_database(self, selected_entries=None):
+    	self.trial()
+
     	table_headers = ['id', 'File', 'Observation Time Start', 'Observation Time End', 'Instrument', 'Min Wavelength', 'Max Wavelength', 'Starred']
     	self.table_headers = table_headers
 
@@ -317,7 +362,7 @@ class SunPy(GingaPlugin.GlobalPlugin):
     		search = Widgets.TextEntry()
     		search_boxes[i] = search.get_widget()
     		search_boxes[i].textChanged.connect(self.query)
-
+    	
     	self.search_boxes = search_boxes
 
     	if self.starred_entries_box.get_state():
@@ -338,17 +383,33 @@ class SunPy(GingaPlugin.GlobalPlugin):
     		for j, col in enumerate(row):
     			item = QtGui.QTableWidgetItem(str(col))
     			wtable.setItem(i+1, j, item)
-
+    	
     	wtable.itemClicked.connect(self.on_table_row_click)
     	wtable.setHorizontalHeaderLabels(table_headers)
     	wtable.horizontalHeader().setResizeMode(QtGui.QHeaderView.ResizeToContents)
 
     	self.wtable = wtable
-
+    	
     	if 'sunpydb' in self.fv.ds.get_tabnames():
     		self.fv.ds.remove_tab("sunpydb")
 
+    	# vbox.add_widget(search_hbox)
+    	# vbox.add_widget(wtable)
+    	
     	self.fv.ds.add_tab("right", wtable, 1, "SunPyDB", tabname="sunpydb")
+
+    	print dir(self.fv.ds)
+
+    	fr = Widgets.Frame()
+    	vbox = Widgets.VBox()
+    	
+    	commit_db_button = Widgets.Button(text="Commit changes to Database")
+    	commit_db_button.add_callback('activated', lambda w: self.commit_database())
+
+    	vbox.add_widget(commit_db_button)
+
+    	fr.set_widget(vbox)
+
     	self.fv.ds.raise_tab("sunpydb")
 
     def query(self):
