@@ -15,6 +15,7 @@ from ginga.misc import Widgets
 from ginga.qtw.ImageViewQt import ImageViewZoom
 from ginga import AstroImage
 from ginga.qtw.QtHelp import QtGui, QtCore
+from ginga.qtw import QtHelp
 
 # importing the other modules
 import sys, os
@@ -195,7 +196,7 @@ class SunPy(GingaPlugin.GlobalPlugin):
         return db_parameters_frame
 
     def add_db_default_values_to_gui(self):
-    	db_default_values_frame = Widgets.Frame("Options")
+        db_default_values_frame = Widgets.Frame("Options")
         db_default_values_vbox = Widgets.VBox()
 
         # Wrapping Default Wavelength Label and ComboBox in a HBox
@@ -204,7 +205,7 @@ class SunPy(GingaPlugin.GlobalPlugin):
 
         default_wavelength_label = Widgets.Label(text="Default Wavelength")
         self.default_wavelength_label = default_wavelength_label
-        
+
         default_wavelength = Widgets.ComboBox()
         default_wavelength.insert_alpha('angstrom')
         default_wavelength.append_text('nm')
@@ -218,10 +219,6 @@ class SunPy(GingaPlugin.GlobalPlugin):
         set_default_box = Widgets.CheckBox("Set Current Database as default")
         self.set_default_box = set_default_box
         db_default_values_vbox.add_widget(set_default_box)
-
-        starred_entries_box = Widgets.CheckBox("Show starred entries only")
-        self.starred_entries_box = starred_entries_box
-        db_default_values_vbox.add_widget(starred_entries_box)
 
         db_default_values_vbox.add_widget(Widgets.Label(''), stretch=1)
         db_default_values_frame.set_widget(db_default_values_vbox)
@@ -272,7 +269,7 @@ class SunPy(GingaPlugin.GlobalPlugin):
     def get_data_from_db(self):
     	queries = []
 
-    	for entry in datebase:
+    	for entry in database:
     		q = []
 
     		q.append(entry.id)
@@ -307,82 +304,49 @@ class SunPy(GingaPlugin.GlobalPlugin):
 
     	return queries
 
-    def trial(self):
-    	fr = Widgets.Frame()
-
-    	vbox = Widgets.VBox()
-    	print "Hello1"
-
-        #Adding Buttons
-        connect_db_button = Widgets.Button(text="Connect")
-        connect_db_button.add_callback('activated', lambda w: self.connect_db())
-
-        view_db_button = Widgets.Button(text="View Database")
-        view_db_button.add_callback('activated', lambda w: self.view_database())
-        
-        add_file_to_db_button = Widgets.Button(text="Add file to Database")
-        add_file_to_db_button.add_callback('activated', lambda w: self.add_file())
-
-        open_db_button = Widgets.Button(text="Open Database")
-        open_db_button.add_callback('activated', lambda w: self.open_sqlite_database())
- 
-        commit_db_button = Widgets.Button(text="Commit changes to Database")
-        commit_db_button.add_callback('activated', lambda w: self.commit_database())
-
-        vbox.add_widget(connect_db_button)
-        vbox.add_widget(view_db_button)
-        vbox.add_widget(add_file_to_db_button)
-        vbox.add_widget(open_db_button)
-        vbox.add_widget(commit_db_button)
-        vbox.add_widget(Widgets.Label(''), stretch=1)
-
-        print "Hello"
-        fr.set_widget(vbox)
-        print "Hello Dolly"
-
-        print dir(fr)
-        print
-        print dir(vbox)
-
-        self.fv.ds.add_tab("right", fr.get_widget(), 1, "trial", tabname="trial")
-    	print "Hello2"
-
-    	self.fv.ds.raise_tab("trial")
-    	print "Hello3"
-
     def view_database(self, selected_entries=None):
-    	self.trial()
-
     	table_headers = ['id', 'File', 'Observation Time Start', 'Observation Time End', 'Instrument', 'Min Wavelength', 'Max Wavelength', 'Starred']
     	self.table_headers = table_headers
 
-    	search_boxes = {}
-    	
-    	for i in table_headers:
-    		search = Widgets.TextEntry()
-    		search_boxes[i] = search.get_widget()
-    		search_boxes[i].textChanged.connect(self.query)
-    	
-    	self.search_boxes = search_boxes
+    	vbox = QtHelp.VBox()
 
-    	if self.starred_entries_box.get_state():
-    		q = self.get_starred_entries_id()
-    		selected_entries = self.get_entries_from_id(q)
+    	# filter_hbox = QtHelp.HBox()
+    	# filter_hbox.set_spacing(3)
+
+    	filter_label = QtGui.QLabel("Filter")
+    	self.filter_label = filter_label
+    	filter_select = QtGui.QComboBox()
+
+    	search_box = QtGui.QLineEdit()
+    	search_box.textChanged.connect(self.query)
+    	self.search_box = search_box
+
+    	# search_boxes = {}
+    	
+    	# for i in table_headers:
+    	# 	search = Widgets.TextEntry()
+    	# 	search_boxes[i] = search.get_widget()
+    	# 	search_boxes[i].textChanged.connect(self.query)
+    	
+    	# self.search_boxes = search_boxes
 
     	if selected_entries == None:
     		selected_entries = database
 
     	queries = self.get_data_from_selected_entries(selected_entries)
 
-    	wtable = QtGui.QTableWidget(len(queries) + 1, len(table_headers))
+    	# wtable = QtGui.QTableWidget(len(queries) + 1, len(table_headers))
 
-    	for i, col in enumerate(table_headers):
-    	 	wtable.setCellWidget(0, i, search_boxes[col])
+    	wtable = QtGui.QTableWidget(len(queries), len(table_headers))
+
+    	# for i, col in enumerate(table_headers):
+    	#  	wtable.setCellWidget(0, i, search_boxes[col])
 
     	for i, row in enumerate(queries):
     		for j, col in enumerate(row):
     			item = QtGui.QTableWidgetItem(str(col))
-    			wtable.setItem(i+1, j, item)
+    			# wtable.setItem(i+1, j, item)
+    			wtable.setItem(i, j, item)
     	
     	wtable.itemClicked.connect(self.on_table_row_click)
     	wtable.setHorizontalHeaderLabels(table_headers)
@@ -394,77 +358,90 @@ class SunPy(GingaPlugin.GlobalPlugin):
     		self.fv.ds.remove_tab("sunpydb")
 
     	# vbox.add_widget(search_hbox)
-    	# vbox.add_widget(wtable)
+    	# print 'filter', dir(filter_select)
+    	filter_select.addItems(self.table_headers[:-1])
+    	self.filter_select = filter_select
+      
+    	vbox.addWidget(filter_label, stretch=0)
+    	vbox.addWidget(filter_select, stretch=0)
+    	vbox.addWidget(search_box)
+    	vbox.addWidget(wtable, stretch=0)
     	
-    	self.fv.ds.add_tab("right", wtable, 1, "SunPyDB", tabname="sunpydb")
+    	starred_entries_box = QtGui.QCheckBox("Show starred entries only")
+    	self.starred_entries_box = starred_entries_box
+    	starred_entries_box.stateChanged.connect(self.starred_entries_only)
 
-    	print dir(self.fv.ds)
+    	vbox.addWidget(starred_entries_box)
 
-    	fr = Widgets.Frame()
-    	vbox = Widgets.VBox()
-    	
-    	commit_db_button = Widgets.Button(text="Commit changes to Database")
-    	commit_db_button.add_callback('activated', lambda w: self.commit_database())
-
-    	vbox.add_widget(commit_db_button)
-
-    	fr.set_widget(vbox)
-
+    	self.fv.ds.add_tab("right", vbox, 1, "SunPyDB", tabname="sunpydb")
     	self.fv.ds.raise_tab("sunpydb")
+
+    def starred_entries_only(self):
+    	if self.starred_entries_box.isChecked():
+    		q = self.get_starred_entries_id()
+    		selected_entries = self.get_entries_from_id(q)
+    		self.database_table_repaint(selected_entries)
+    	else:
+    		self.database_table_repaint(database)
 
     def query(self):
     	query_mapping = {
     		'id' : 'id',
-    		'observation_time_start' : 'Observation Time Start',
-    		'observation_time_end' : 'Observation Time End',
-    		'instrument' : 'Instrument', 
-    		'wavemin' : 'Min Wavelength', 
-    		'wavemax' : 'Max Wavelength' 
+    		'Observation Time Start' : 'observation_time_start',
+    		'Observation Time End' : 'observation_time_end',
+    		'Instrument' : 'instrument', 
+    		'Min Wavelength' : 'wavemin', 
+    		'Max Wavelength' : 'wavemax',
+    		'File' : 'path'  
     	}
 
-    	query_headers = ['id', 'observation_time_start', 'observation_time_end', 'instrument', 'wavemin', 'wavemax']
-    	query_tuple = [self.search_boxes[query_mapping[x]].text() for x in query_headers]
-    	
+    	q = self.search_box.text()
+    	print 'Query:', q
+
+    	# if q == '':
+    	# 	self.view_database()
+    	# 	return
+
+    	category = self.filter_select.currentText()
+    	print category
+    	col = self.table_headers.index(category)
+    	print col
+
     	query_results = []
-    	queried_col = {}
 
-    	for k,v in self.search_boxes.items():
-    		if v.text() != '':
-    			queried_col[k] = v.text()
-    			col = self.table_headers.index(k)
-    			for i in range(1, self.wtable.rowCount()):
-    				t = self.wtable.item(i, col)
-    				if t.text().lower().find(v.text()) != -1:
-    					query_results.append(i)
+    	for i in database:
+    		s = str(getattr(i, query_mapping[category]))
+    		print s
+    		try:
+    			if s.lower().find(q) != -1:
+    				query_results.append(i.id)
+    		except:
+    			continue
 
-    	
-    	q = self.get_entries_from_id(query_results)
-    	self.database_table_repaint(q)
+    	# for i in range(self.wtable.rowCount()):
+    	# 	print 'i:', i
+    	# 	t = self.wtable.item(i, col)
+
+    	# 	try:
+    	# 		if t.text().lower().find(q) != -1:
+    	# 			query_results.append(int(self.wtable.item(i, 0).text()))
+    	# 	except:
+    	# 		continue
 
     	print query_results
-    	# self.view_database(q)
-    	# self.database_table_repaint(query_results)
+
+    	q = self.get_entries_from_id(query_results)
+    	self.database_table_repaint(q)
 
     def database_table_repaint(self, entries):
     	self.wtable.clearContents()
 
-    	search_boxes = {}
-    	self.search_boxes = search_boxes
-
-    	for i in self.table_headers:
-    		search = Widgets.TextEntry()
-    		search_boxes[i] = search.get_widget()
-    		search_boxes[i].textChanged.connect(self.query)
-
     	queries = self.get_data_from_selected_entries(entries)
-
-    	for i, col in enumerate(self.table_headers):
-    		self.wtable.setCellWidget(0, i, self.search_boxes[col])
 
     	for i, row in enumerate(queries):
     		for j, col in enumerate(row):
     			item = QtGui.QTableWidgetItem(str(col))
-    			self.wtable.setItem(i+1, j, item)
+    			self.wtable.setItem(i, j, item)
 
     	self.wtable.itemClicked.connect(self.on_table_row_click)
     	# self.wtable.setHorizontalHeaderLabels(self.table_headers)
@@ -511,6 +488,7 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	for entry in database:
     		if entry.starred:
     			q.append(entry.id)
+
     	return q
 
     def get_entries_from_id (self, entries_id):
@@ -519,7 +497,6 @@ class SunPy(GingaPlugin.GlobalPlugin):
     		q.append(database.get_entry_by_id(i))
 
     	return q
-
 
     def set_default_db(self, conn_string):
 		url = conn_string
@@ -550,11 +527,17 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	self.set_info("File Added: %s"%file_name)
       
     def open_sqlite_database(self):
+    	'''
+    		Connects to a sqlite database by selecting it from a file box
+    	'''
     	file_name = self.open_file()
     	db_conn_string = 'sqlite:///' + file_name
     	self.connect_db(db_conn_string)
 
     def commit_database(self):
+    	'''
+    		Commits the newly added files to the connected database
+    	'''
         database.commit()
         self.set_info("Status: Database Committed")
 
