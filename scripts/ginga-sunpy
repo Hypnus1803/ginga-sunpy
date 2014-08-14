@@ -10,6 +10,10 @@ ginga-sunpy [options] [fitsfile] ...
 import os
 import sys
 from ginga import main
+from ginga.misc.Bunch import Bunch
+
+main.global_plugins.append(
+    Bunch(module='SunPy', tab='SunPy', ws='right', start=True))
 
 # Put the path of the plugin into the sys path so ginga finds it.
 import ginga_sunpy
@@ -26,6 +30,4 @@ for k, v in cmlist.items():
     add_matplotlib_cmap(v, name=k)
 
 if __name__ == "__main__":
-    args = sys.argv
-    args.append('--modules=SunPy')
-    main.reference_viewer(args)
+    main.reference_viewer(sys.argv)
