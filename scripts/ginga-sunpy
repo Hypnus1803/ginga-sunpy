@@ -12,8 +12,8 @@ import sys
 from ginga import main
 from ginga.misc.Bunch import Bunch
 
-main.global_plugins.append(
-    Bunch(module='SunPy', tab='SunPy', ws='right', start=True))
+main.global_plugins.insert(0,
+    Bunch(module='SunPy', tab='SunPy', ws='right', start=True, raisekey='S'))
 
 # Put the path of the plugin into the sys path so ginga finds it.
 import ginga_sunpy
