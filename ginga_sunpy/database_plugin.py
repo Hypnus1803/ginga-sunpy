@@ -8,8 +8,9 @@ To enable it, run ginga with the command
 
 it should become active in the right panel.
 """
+__all__ = ['SunPy']
 
-# importing the Ginga modules required by a Ginga Plugin 
+# importing the Ginga modules required by a Ginga Plugin
 from ginga import GingaPlugin, cmap
 from ginga.misc import Widgets
 from ginga.qtw.ImageViewQt import ImageViewZoom
@@ -53,7 +54,7 @@ class SunPy(GingaPlugin.GlobalPlugin):
         fv.set_callback('add-channel', self.add_channel)
         fv.set_callback('delete-channel', self.delete_channel)
         fv.set_callback('active-image', self.focus_cb)
-        
+
     def build_gui(self, container):
         """
         This method is called when the plugin is invoked.  It builds the
@@ -99,7 +100,7 @@ class SunPy(GingaPlugin.GlobalPlugin):
         view_db_button = Widgets.Button(text="View Database")
         self.view_db_button = view_db_button
         view_db_button.add_callback('activated', lambda w: self.view_database())
-        
+
         add_file_to_db_button = Widgets.Button(text="Add file to Database")
         self.add_file_to_db_button = add_file_to_db_button
         add_file_to_db_button.add_callback('activated', lambda w: self.add_file())
@@ -107,7 +108,7 @@ class SunPy(GingaPlugin.GlobalPlugin):
         open_db_button = Widgets.Button(text="Open Database")
         self.open_db_button = open_db_button
         open_db_button.add_callback('activated', lambda w: self.open_sqlite_database())
- 
+
         commit_db_button = Widgets.Button(text="Commit changes to Database")
         self.commit_db_button = commit_db_button
         commit_db_button.add_callback('activated', lambda w: self.commit_database())
@@ -157,30 +158,30 @@ class SunPy(GingaPlugin.GlobalPlugin):
         #cw.addWidget(widget, stretch=1)
 
     def add_db_parameters_to_gui(self):
-    	# Frame for datebase parameters 
+    	# Frame for datebase parameters
         db_parameters_frame = Widgets.Frame("Database Parameters")
         db_parameters_vbox = Widgets.VBox()
-        
+
         db_driver = Widgets.TextEntry("sqlite")
         db_name = Widgets.TextEntry("sunpydb")
         db_user = Widgets.TextEntry()
         db_passwd = Widgets.TextEntry()
-        
+
         self.db_driver = db_driver
-        self.db_name = db_name                
+        self.db_name = db_name
         self.db_user = db_user
         self.db_passwd = db_passwd
-                                                                          
+
         db_driver_label = Widgets.Label(text="Driver Name")
         db_name_label = Widgets.Label(text="Database Name")
         db_user_label = Widgets.Label(text="User Name")
         db_passwd_label = Widgets.Label(text="Password")
-        
+
         self.db_driver_label = db_driver_label
         self.db_name_label = db_name_label
         self.db_user_label = db_user_label
         self.db_passwd_label = db_passwd_label
-        
+
         db_parameters_vbox.add_widget(db_driver_label)
         db_parameters_vbox.add_widget(db_driver)
         db_parameters_vbox.add_widget(db_name_label)
@@ -192,7 +193,7 @@ class SunPy(GingaPlugin.GlobalPlugin):
 
         db_parameters_vbox.add_widget(Widgets.Label(''), stretch=1)
         db_parameters_frame.set_widget(db_parameters_vbox)
-        
+
         return db_parameters_frame
 
     def add_db_default_values_to_gui(self):
@@ -225,25 +226,25 @@ class SunPy(GingaPlugin.GlobalPlugin):
 
         return db_default_values_frame
 
-    def connect_db(self, conn_string=''): 
+    def connect_db(self, conn_string=''):
     	def_wavelength = self.default_wavelength.get_widget().currentText()
 
     	try:
     		if conn_string == '':
     			conn_string = sunpy.config.get('database', 'url')
-    		global database 
+    		global database
     		database = Database(conn_string, default_waveunit=def_wavelength)
     	except:
     		conn_string = self.get_conn_string()
-    		global database 
+    		global database
     		database = Database(conn_string, default_waveunit=def_wavelength)
 
     	if self.set_default_box.get_state():
     		self.set_default_db(conn_string)
-    	
+
     	self.set_info("Database Connected at %s"%conn_string)
     	return database
-    
+
     def get_conn_string(self):
     	conn_string = ''
 
@@ -263,7 +264,7 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	if db_name == '':
     		db_name = 'sunpydb'
 
-    	conn_string = db_driver + '://' + user_string+ '/' + db_name     	
+    	conn_string = db_driver + '://' + user_string+ '/' + db_name
     	return conn_string
 
     def get_data_from_db(self):
@@ -322,12 +323,12 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	self.search_box = search_box
 
     	# search_boxes = {}
-    	
+
     	# for i in table_headers:
     	# 	search = Widgets.TextEntry()
     	# 	search_boxes[i] = search.get_widget()
     	# 	search_boxes[i].textChanged.connect(self.query)
-    	
+
     	# self.search_boxes = search_boxes
 
     	if selected_entries == None:
@@ -347,13 +348,13 @@ class SunPy(GingaPlugin.GlobalPlugin):
     			item = QtGui.QTableWidgetItem(str(col))
     			# wtable.setItem(i+1, j, item)
     			wtable.setItem(i, j, item)
-    	
+
     	wtable.itemClicked.connect(self.on_table_row_click)
     	wtable.setHorizontalHeaderLabels(table_headers)
     	wtable.horizontalHeader().setResizeMode(QtGui.QHeaderView.ResizeToContents)
 
     	self.wtable = wtable
-    	
+
     	if 'sunpydb' in self.fv.ds.get_tabnames():
     		self.fv.ds.remove_tab("sunpydb")
 
@@ -361,12 +362,12 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	# print 'filter', dir(filter_select)
     	filter_select.addItems(self.table_headers[:-1])
     	self.filter_select = filter_select
-      
+
     	vbox.addWidget(filter_label, stretch=0)
     	vbox.addWidget(filter_select, stretch=0)
     	vbox.addWidget(search_box)
     	vbox.addWidget(wtable, stretch=0)
-    	
+
     	starred_entries_box = QtGui.QCheckBox("Show starred entries only")
     	self.starred_entries_box = starred_entries_box
     	starred_entries_box.stateChanged.connect(self.starred_entries_only)
@@ -389,10 +390,10 @@ class SunPy(GingaPlugin.GlobalPlugin):
     		'id' : 'id',
     		'Observation Time Start' : 'observation_time_start',
     		'Observation Time End' : 'observation_time_end',
-    		'Instrument' : 'instrument', 
-    		'Min Wavelength' : 'wavemin', 
+    		'Instrument' : 'instrument',
+    		'Min Wavelength' : 'wavemin',
     		'Max Wavelength' : 'wavemax',
-    		'File' : 'path'  
+    		'File' : 'path'
     	}
 
     	q = self.search_box.text()
@@ -517,7 +518,7 @@ class SunPy(GingaPlugin.GlobalPlugin):
     		fileName = str(res)
 
     	return fileName
-    
+
     def add_file(self):
     	file_name = self.open_file()
 
@@ -525,7 +526,7 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	database.add_from_file(file_name)
 
     	self.set_info("File Added: %s"%file_name)
-      
+
     def open_sqlite_database(self):
     	'''
     		Connects to a sqlite database by selecting it from a file box
@@ -548,9 +549,9 @@ class SunPy(GingaPlugin.GlobalPlugin):
 
     def set_info(self, text):
         self.tw.set_text(text)
-    
+
     # CALLBACKS
-    
+
     def add_channel(self, viewer, chinfo):
         """
         Callback from the reference viewer shell when a channel is added.
@@ -568,7 +569,7 @@ class SunPy(GingaPlugin.GlobalPlugin):
         self.set_info("Channel '%s' has been deleted" % (
                 chinfo.name))
         return True
-        
+
     def focus_cb(self, viewer, fitsimage):
         """
         Callback from the reference viewer shell when the focus changes
@@ -576,7 +577,7 @@ class SunPy(GingaPlugin.GlobalPlugin):
         """
         chinfo = self.get_channel_info(fitsimage)
         chname = chinfo.name
-        
+
         if self.active != chname:
             # focus has shifted to a different channel than our idea
             # of the active one
@@ -584,7 +585,7 @@ class SunPy(GingaPlugin.GlobalPlugin):
             self.set_info("Focus is now in channel '%s'" % (
                 self.active))
         return True
-        
+
     def new_image_cb(self, fitsimage, image):
         """
         Callback from the reference viewer shell when a new image has
@@ -600,7 +601,7 @@ class SunPy(GingaPlugin.GlobalPlugin):
             self.set_info("A new image '%s' has been added to channel %s" % (
                 imname, chname))
         return True
-        
+
     def start(self):
         """
         This method is called just after ``build_gui()`` when the plugin
@@ -612,14 +613,14 @@ class SunPy(GingaPlugin.GlobalPlugin):
 
     def stop(self):
         """
-        This method is called when the plugin is stopped. 
+        This method is called when the plugin is stopped.
         It should perform any special clean up necessary to terminate
         the operation.  This method could be called more than once if
         the plugin is opened and closed, and may be omitted if there is no
         special cleanup required when stopping.
         """
         pass
-        
+
     def close(self):
         self.fv.stop_global_plugin(str(self))
         return True
