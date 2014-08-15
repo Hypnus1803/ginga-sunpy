@@ -7,10 +7,22 @@ Usage:
 ginga-sunpy --help
 ginga-sunpy [options] [fitsfile] ...
 """
+import os
 import sys
 from ginga import main
+from ginga.misc.Bunch import Bunch
+
+main.global_plugins.insert(0,
+    Bunch(module='SunPy', tab='SunPy', ws='right', start=True, raisekey='S'))
+
+# Put the path of the plugin into the sys path so ginga finds it.
+import ginga_sunpy
+sys.path.append(os.path.split(ginga_sunpy.__file__)[0])
 
 # Add SunPy color maps to ginga
+# Force the mpl backend here so that it dosen't mess with Qt.
+import matplotlib as mpl
+mpl.use("agg")
 from ginga.cmap import cmaps, add_matplotlib_cmap
 from sunpy.cm.cm import cmlist
 
@@ -18,6 +30,4 @@ for k, v in cmlist.items():
     add_matplotlib_cmap(v, name=k)
 
 if __name__ == "__main__":
-    args = sys.argv
-    args.append('--plugin=sunpy_plugin')
-    main.reference_viewer(args)
+    main.reference_viewer(sys.argv)
