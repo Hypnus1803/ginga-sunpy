@@ -23,6 +23,8 @@ import sys, os
 import numpy as np
 
 # importing the SunPy databse module
+import matplotlib as mpl
+mpl.use("Agg")
 from sunpy.database import Database
 import sunpy.database
 import sunpy
