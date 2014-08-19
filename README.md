@@ -1,18 +1,21 @@
 ginga-sunpy
 ===========
 
-Plugins and routines for Ginga to enable the use of solar data
+Plugins and routines for [Ginga](http://ejeschke.github.io/ginga/) to enable the use of solar data
 
 Installation
 ------------
 
-1) Clone this repository
+1. First install [Ginga](http://ejeschke.github.io/ginga/) if you don't have it already.
 
-2) From the home directory run `python setup.py develop`. You may need to do it as sudo.
+2. Download the code (or clone this repo).
 
-3) Run `ginga-sunpy` from your command-line and Ginga will open with the SunPy Database plugin open
+3. To install
+  1. For general use, from the ginga-sunpy directory run `python setup.py install`.
+  2. For developers, from the ginga-sunpy directory run `python setup.py develop`.
 
-Note: Please get-rid of SunPy.py file from the .ginga/plugins folder if there (delete or remane it)
+4. Run `ginga-sunpy` from your command-line and Ginga will open with the SunPy plugin running.
+
 
 Documentation
 -------------
