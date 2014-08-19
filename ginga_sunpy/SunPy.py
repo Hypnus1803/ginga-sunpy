@@ -238,15 +238,13 @@ class SunPy(GingaPlugin.GlobalPlugin):
         return db_default_values_frame
 
     def connect_db(self, conn_string=''):
-      '''
-        This function creates a database connection based on the parameters
-        specified in the GUI.
+    	'''
+    		This function creates a database connection based on the parameters
+    		specified in the GUI.
+    		Parameters: conn_string (string of the connection for the object) Optional
+    	'''
 
-        Parameters: conn_string (string of the connection for the object) Optional
-        
-      '''
-      
-      def_wavelength = self.default_wavelength.get_widget().currentText()
+    	def_wavelength = self.default_wavelength.get_widget().currentText()
 
     	try:
     		if conn_string == '':
@@ -265,9 +263,9 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	return database
 
     def get_conn_string(self):
-      '''
-        Gets the connection string based on the values specified in the GUI
-      '''
+    	'''
+    		Gets the connection string based on the values specified in the GUI
+    	'''
 
     	conn_string = ''
 
@@ -293,10 +291,10 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	return conn_string
 
     def get_data_from_db(self):
-      '''
-        Gets the data from all the entries from the database and return then in
-        the form of a list
-      '''
+    	'''
+			Gets the data from all the entries from the database and return then in
+			the form of a list
+		'''
     	queries = []
 
     	for entry in database:
@@ -316,32 +314,32 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	return queries
 
     def get_data_from_selected_entries(self, entries):
-      '''
-        Gets the data from seleted entries from the database and return then in
-        the form of a list
-      '''
-    	queries = []
+		'''
+			Gets the data from seleted entries from the database and return then in
+			the form of a list
+		'''
+		queries = []
 
-    	for entry in entries:
-    		q = []
+		for entry in entries:
+			q = []
 
-    		q.append(entry.id)
-    		q.append(entry.path.split('/')[-1])
-    		q.append(entry.observation_time_start)
-    		q.append(entry.observation_time_end)
-    		q.append(entry.instrument)
-    		q.append(entry.wavemin)
-    		q.append(entry.wavemax)
-    		q.append(entry.starred)
+			q.append(entry.id)
+			q.append(entry.path.split('/')[-1])
+			q.append(entry.observation_time_start)
+			q.append(entry.observation_time_end)
+			q.append(entry.instrument)
+			q.append(entry.wavemin)
+			q.append(entry.wavemax)
+			q.append(entry.starred)
 
-    		queries.append(q)
-
-    	return queries
+			queries.append(q)
+		return queries
 
     def view_database(self, selected_entries=None):
-      '''
-        Logic for creating and viewing of a tab with the database table
-      '''
+    	'''
+    		Logic for creating and viewing of a tab with the database table
+    	'''
+    	print "Viewing"
 
     	table_headers = ['id', 'File', 'Observation Time Start', 'Observation Time End', 'Instrument', 'Min Wavelength', 'Max Wavelength', 'Starred']
     	self.table_headers = table_headers
@@ -395,10 +393,10 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	self.fv.ds.raise_tab("sunpydb")
 
     def starred_entries_only(self):
-      '''
-        Logic for showing/unshowing the starred entries only in the database
-        table
-      '''
+    	'''
+    		Logic for showing/unshowing the starred entries only in the database
+    		table
+    	'''
 
     	if self.starred_entries_box.isChecked():
     		q = self.get_starred_entries_id()
@@ -408,9 +406,10 @@ class SunPy(GingaPlugin.GlobalPlugin):
     		self.database_table_repaint(database)
 
     def query(self):
-      '''
-        For filtering values in the database table and displaying them
-      '''
+    	'''
+    		For filtering values in the database table and displaying them
+    	'''
+    	
     	query_mapping = {
     		'id' : 'id',
     		'Observation Time Start' : 'observation_time_start',
@@ -445,9 +444,10 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	self.database_table_repaint(q)
 
     def database_table_repaint(self, entries):
-      '''
-        Repaints of the database table based on the filter entered
-      '''
+    	'''
+    		Repaints of the database table based on the filter entered
+    	'''
+
     	self.wtable.clearContents()
 
     	queries = self.get_data_from_selected_entries(entries)
@@ -460,10 +460,10 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	self.wtable.itemClicked.connect(self.on_table_row_click)
 
     def on_table_row_click(self, item):
-      '''
-        Event handler for opening a new image when a particular row entry if
-        clicked
-      '''
+    	'''
+    		Event handler for opening a new image when a particular row entry if
+    		clicked
+    	'''
     	row = item.row()
     	col = item.column()
 
@@ -500,9 +500,9 @@ class SunPy(GingaPlugin.GlobalPlugin):
     		pass
 
     def get_starred_entries_id (self):
-      '''
-        Returns a list of id of the starred entries in the database
-      '''
+    	'''
+    		Returns a list of id of the starred entries in the database
+    	'''
     	q = []
     	for entry in database:
     		if entry.starred:
@@ -511,9 +511,10 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	return q
 
     def get_entries_from_id (self, entries_id):
-      '''
-        Returns a list of database entries based on the passed list of id only
-      '''
+    	'''
+    		Returns a list of database entries based on the passed list of id only
+    	'''
+    	
     	q = []
     	for i in entries_id:
     		q.append(database.get_entry_by_id(i))
@@ -521,24 +522,26 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	return q
 
     def set_default_db(self, conn_string):
-      '''
-        Sets the current database as default
-      '''
-      #TODO: To save the config change
-      
-      url = conn_string
-      
-      if 'database' not in sunpy.config.sections():
-        # print sunpy.config.sections()
-        sunpy.config.add_section('database')
-      
-      sunpy.config.set("database", "url", url)
-      print "Set Default DB", sunpy.config.get("database", "url")
+    	'''
+    		Sets the current database as default
+    	'''
+
+    	#TODO: To save the config change
+
+    	url = conn_string
+
+    	if 'database' not in sunpy.config.sections():
+    		# print sunpy.config.sections()
+    		sunpy.config.add_section('database')
+
+    	sunpy.config.set("database", "url", url)
+    	print "Set Default DB", sunpy.config.get("database", "url")
 
     def open_file(self):
-      '''
-        To select a file by opening a File Dialog Box
-      '''
+    	'''
+    		To select a file by opening a File Dialog Box
+    	'''
+    	
     	res = QtGui.QFileDialog.getOpenFileName()
 
     	if isinstance(res, tuple):
@@ -549,9 +552,9 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	return fileName
 
     def add_file(self):
-      '''
-        Adds database entries from the selected FITS file to database
-      '''
+    	'''
+    		Adds database entries from the selected FITS file to database
+    	'''
     	file_name = self.open_file()
 
     	print file_name
@@ -571,8 +574,8 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	'''
     		Commits the newly added files to the connected database
     	'''
-      database.commit()
-      self.set_info("Status: Database Committed")
+    	database.commit()
+    	self.set_info("Status: Database Committed")
 
     def get_channel_info(self, fitsimage):
         chname = self.fv.get_channelName(fitsimage)
