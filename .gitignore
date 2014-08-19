@@ -51,4 +51,11 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
+docs/favicon.ico
+docs/api/
+
+# ah
+ginga_sunpy/cython_version.py
+ginga_sunpy/version.py
+
 
