@@ -292,9 +292,9 @@ class SunPy(GingaPlugin.GlobalPlugin):
 
     def get_data_from_db(self):
     	'''
-			Gets the data from all the entries from the database and return then in
-			the form of a list
-		'''
+    		Gets the data from all the entries from the database and return then in
+    		the form of a list
+    	'''
     	queries = []
 
     	for entry in database:
@@ -314,26 +314,27 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	return queries
 
     def get_data_from_selected_entries(self, entries):
-		'''
-			Gets the data from seleted entries from the database and return then in
-			the form of a list
-		'''
-		queries = []
+    	'''
+    		Gets the data from seleted entries from the database and return then in
+    		the form of a list
+    	'''
+    	queries = []
 
-		for entry in entries:
-			q = []
+    	for entry in entries:
+    		q = []
 
-			q.append(entry.id)
-			q.append(entry.path.split('/')[-1])
-			q.append(entry.observation_time_start)
-			q.append(entry.observation_time_end)
-			q.append(entry.instrument)
-			q.append(entry.wavemin)
-			q.append(entry.wavemax)
-			q.append(entry.starred)
+    		q.append(entry.id)
+    		q.append(entry.path.split('/')[-1])
+    		q.append(entry.observation_time_start)
+    		q.append(entry.observation_time_end)
+    		q.append(entry.instrument)
+    		q.append(entry.wavemin)
+    		q.append(entry.wavemax)
+    		q.append(entry.starred)
 
-			queries.append(q)
-		return queries
+    		queries.append(q)
+
+    	return queries
 
     def view_database(self, selected_entries=None):
     	'''
