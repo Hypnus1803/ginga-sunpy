@@ -160,15 +160,11 @@ class SunPy(GingaPlugin.GlobalPlugin):
         #cw.addWidget(widget, stretch=1)
 
     def add_db_parameters_to_gui(self):
-<<<<<<< HEAD
         '''
           This functions adds the components for the entry of Database
           parameters to the GUI          
         '''
-
-=======
-    	# Frame for datebase parameters
->>>>>>> 164c40fecd99baf9d1f5cb27064620ff454692d3
+        
         db_parameters_frame = Widgets.Frame("Database Parameters")
         db_parameters_vbox = Widgets.VBox()
 
@@ -242,7 +238,6 @@ class SunPy(GingaPlugin.GlobalPlugin):
         return db_default_values_frame
 
     def connect_db(self, conn_string=''):
-<<<<<<< HEAD
       '''
         This function creates a database connection based on the parameters
         specified in the GUI.
@@ -250,10 +245,8 @@ class SunPy(GingaPlugin.GlobalPlugin):
         Parameters: conn_string (string of the connection for the object) Optional
         
       '''
-
-=======
->>>>>>> 164c40fecd99baf9d1f5cb27064620ff454692d3
-    	def_wavelength = self.default_wavelength.get_widget().currentText()
+      
+      def_wavelength = self.default_wavelength.get_widget().currentText()
 
     	try:
     		if conn_string == '':
@@ -363,18 +356,6 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	search_box.textChanged.connect(self.query)
     	self.search_box = search_box
 
-<<<<<<< HEAD
-=======
-    	# search_boxes = {}
-
-    	# for i in table_headers:
-    	# 	search = Widgets.TextEntry()
-    	# 	search_boxes[i] = search.get_widget()
-    	# 	search_boxes[i].textChanged.connect(self.query)
-
-    	# self.search_boxes = search_boxes
-
->>>>>>> 164c40fecd99baf9d1f5cb27064620ff454692d3
     	if selected_entries == None:
     		selected_entries = database
 
