@@ -13,3 +13,8 @@ Installation
 3) Run `ginga-sunpy` from your command-line and Ginga will open with the SunPy Database plugin open
 
 Note: Please get-rid of SunPy.py file from the .ginga/plugins folder if there (delete or remane it)
+
+Documentation
+-------------
+
+The documentation can be found on [readthedocs](https://readthedocs.org/builds/ginga-sunpy/).
