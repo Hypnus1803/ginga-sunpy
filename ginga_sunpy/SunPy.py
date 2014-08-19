@@ -157,7 +157,11 @@ class SunPy(GingaPlugin.GlobalPlugin):
         #cw.addWidget(widget, stretch=1)
 
     def add_db_parameters_to_gui(self):
-    	# Frame for datebase parameters 
+        '''
+          This functions adds the components for the entry of Database
+          parameters to the GUI          
+        '''
+
         db_parameters_frame = Widgets.Frame("Database Parameters")
         db_parameters_vbox = Widgets.VBox()
         
@@ -196,6 +200,11 @@ class SunPy(GingaPlugin.GlobalPlugin):
         return db_parameters_frame
 
     def add_db_default_values_to_gui(self):
+        '''
+          This functions adds the components for the entry of default values of
+          the database to the GUI          
+        '''
+
         db_default_values_frame = Widgets.Frame("Options")
         db_default_values_vbox = Widgets.VBox()
 
@@ -225,7 +234,15 @@ class SunPy(GingaPlugin.GlobalPlugin):
 
         return db_default_values_frame
 
-    def connect_db(self, conn_string=''): 
+    def connect_db(self, conn_string=''):
+      '''
+        This function creates a database connection based on the parameters
+        specified in the GUI.
+
+        Parameters: conn_string (string of the connection for the object) Optional
+        
+      '''
+
     	def_wavelength = self.default_wavelength.get_widget().currentText()
 
     	try:
@@ -245,6 +262,10 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	return database
     
     def get_conn_string(self):
+      '''
+        Gets the connection string based on the values specified in the GUI
+      '''
+
     	conn_string = ''
 
     	db_driver = self.db_driver.get_text()
@@ -261,12 +282,18 @@ class SunPy(GingaPlugin.GlobalPlugin):
     		db_driver = 'sqlite'
 
     	if db_name == '':
-    		db_name = 'sunpydb'
+    		db_name = config.get('general', 'working_dir') + 'sunpydb'
+
+    	# print db_name
 
     	conn_string = db_driver + '://' + user_string+ '/' + db_name     	
     	return conn_string
 
     def get_data_from_db(self):
+      '''
+        Gets the data from all the entries from the database and return then in
+        the form of a list
+      '''
     	queries = []
 
     	for entry in database:
@@ -286,6 +313,10 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	return queries
 
     def get_data_from_selected_entries(self, entries):
+      '''
+        Gets the data from seleted entries from the database and return then in
+        the form of a list
+      '''
     	queries = []
 
     	for entry in entries:
@@ -305,13 +336,14 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	return queries
 
     def view_database(self, selected_entries=None):
+      '''
+        Logic for creating and viewing of a tab with the database table
+      '''
+
     	table_headers = ['id', 'File', 'Observation Time Start', 'Observation Time End', 'Instrument', 'Min Wavelength', 'Max Wavelength', 'Starred']
     	self.table_headers = table_headers
 
     	vbox = QtHelp.VBox()
-
-    	# filter_hbox = QtHelp.HBox()
-    	# filter_hbox.set_spacing(3)
 
     	filter_label = QtGui.QLabel("Filter")
     	self.filter_label = filter_label
@@ -321,31 +353,16 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	search_box.textChanged.connect(self.query)
     	self.search_box = search_box
 
-    	# search_boxes = {}
-    	
-    	# for i in table_headers:
-    	# 	search = Widgets.TextEntry()
-    	# 	search_boxes[i] = search.get_widget()
-    	# 	search_boxes[i].textChanged.connect(self.query)
-    	
-    	# self.search_boxes = search_boxes
-
     	if selected_entries == None:
     		selected_entries = database
 
     	queries = self.get_data_from_selected_entries(selected_entries)
 
-    	# wtable = QtGui.QTableWidget(len(queries) + 1, len(table_headers))
-
     	wtable = QtGui.QTableWidget(len(queries), len(table_headers))
-
-    	# for i, col in enumerate(table_headers):
-    	#  	wtable.setCellWidget(0, i, search_boxes[col])
 
     	for i, row in enumerate(queries):
     		for j, col in enumerate(row):
     			item = QtGui.QTableWidgetItem(str(col))
-    			# wtable.setItem(i+1, j, item)
     			wtable.setItem(i, j, item)
     	
     	wtable.itemClicked.connect(self.on_table_row_click)
@@ -357,8 +374,6 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	if 'sunpydb' in self.fv.ds.get_tabnames():
     		self.fv.ds.remove_tab("sunpydb")
 
-    	# vbox.add_widget(search_hbox)
-    	# print 'filter', dir(filter_select)
     	filter_select.addItems(self.table_headers[:-1])
     	self.filter_select = filter_select
       
@@ -377,6 +392,11 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	self.fv.ds.raise_tab("sunpydb")
 
     def starred_entries_only(self):
+      '''
+        Logic for showing/unshowing the starred entries only in the database
+        table
+      '''
+
     	if self.starred_entries_box.isChecked():
     		q = self.get_starred_entries_id()
     		selected_entries = self.get_entries_from_id(q)
@@ -385,6 +405,9 @@ class SunPy(GingaPlugin.GlobalPlugin):
     		self.database_table_repaint(database)
 
     def query(self):
+      '''
+        For filtering values in the database table and displaying them
+      '''
     	query_mapping = {
     		'id' : 'id',
     		'Observation Time Start' : 'observation_time_start',
@@ -396,44 +419,32 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	}
 
     	q = self.search_box.text()
-    	print 'Query:', q
-
-    	# if q == '':
-    	# 	self.view_database()
-    	# 	return
+    	# print 'Query:', q
 
     	category = self.filter_select.currentText()
-    	print category
+    	# print category
     	col = self.table_headers.index(category)
-    	print col
+    	# print col
 
     	query_results = []
 
     	for i in database:
     		s = str(getattr(i, query_mapping[category]))
-    		print s
+    		# print s
     		try:
     			if s.lower().find(q) != -1:
     				query_results.append(i.id)
     		except:
     			continue
-
-    	# for i in range(self.wtable.rowCount()):
-    	# 	print 'i:', i
-    	# 	t = self.wtable.item(i, col)
-
-    	# 	try:
-    	# 		if t.text().lower().find(q) != -1:
-    	# 			query_results.append(int(self.wtable.item(i, 0).text()))
-    	# 	except:
-    	# 		continue
-
-    	print query_results
+    	# print query_results
 
     	q = self.get_entries_from_id(query_results)
     	self.database_table_repaint(q)
 
     def database_table_repaint(self, entries):
+      '''
+        Repaints of the database table based on the filter entered
+      '''
     	self.wtable.clearContents()
 
     	queries = self.get_data_from_selected_entries(entries)
@@ -444,10 +455,12 @@ class SunPy(GingaPlugin.GlobalPlugin):
     			self.wtable.setItem(i, j, item)
 
     	self.wtable.itemClicked.connect(self.on_table_row_click)
-    	# self.wtable.setHorizontalHeaderLabels(self.table_headers)
-    	# self.wtable.horizontalHeader().setResizeMode(QtGui.QHeaderView.ResizeToContents)
 
     def on_table_row_click(self, item):
+      '''
+        Event handler for opening a new image when a particular row entry if
+        clicked
+      '''
     	row = item.row()
     	col = item.column()
 
@@ -484,6 +497,9 @@ class SunPy(GingaPlugin.GlobalPlugin):
     		pass
 
     def get_starred_entries_id (self):
+      '''
+        Returns a list of id of the starred entries in the database
+      '''
     	q = []
     	for entry in database:
     		if entry.starred:
@@ -492,6 +508,9 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	return q
 
     def get_entries_from_id (self, entries_id):
+      '''
+        Returns a list of database entries based on the passed list of id only
+      '''
     	q = []
     	for i in entries_id:
     		q.append(database.get_entry_by_id(i))
@@ -499,16 +518,24 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	return q
 
     def set_default_db(self, conn_string):
-		url = conn_string
-
-		if 'database' not in sunpy.config.sections():
-			print sunpy.config.sections()
-			sunpy.config.add_section('database')
-
-		sunpy.config.set("database", "url", url)
-		print "Set Default DB", sunpy.config.get("database", "url")
+      '''
+        Sets the current database as default
+      '''
+      #TODO: To save the config change
+      
+      url = conn_string
+      
+      if 'database' not in sunpy.config.sections():
+        # print sunpy.config.sections()
+        sunpy.config.add_section('database')
+      
+      sunpy.config.set("database", "url", url)
+      print "Set Default DB", sunpy.config.get("database", "url")
 
     def open_file(self):
+      '''
+        To select a file by opening a File Dialog Box
+      '''
     	res = QtGui.QFileDialog.getOpenFileName()
 
     	if isinstance(res, tuple):
@@ -519,6 +546,9 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	return fileName
     
     def add_file(self):
+      '''
+        Adds database entries from the selected FITS file to database
+      '''
     	file_name = self.open_file()
 
     	print file_name
@@ -538,8 +568,8 @@ class SunPy(GingaPlugin.GlobalPlugin):
     	'''
     		Commits the newly added files to the connected database
     	'''
-        database.commit()
-        self.set_info("Status: Database Committed")
+      database.commit()
+      self.set_info("Status: Database Committed")
 
     def get_channel_info(self, fitsimage):
         chname = self.fv.get_channelName(fitsimage)
